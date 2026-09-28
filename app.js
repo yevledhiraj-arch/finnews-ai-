@@ -1,0 +1,5 @@
+const API='http://127.0.0.1:8000';
+const statusEl=document.getElementById('status'), newsEl=document.getElementById('news');
+document.getElementById('fetch').onclick=load;
+function esc(s=''){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+async function load(){const q=document.getElementById('query').value.trim(); statusEl.textContent='Fetching current news and simplifying it...'; newsEl.innerHTML=''; try{const r=await fetch(`${API}/api/simplified?q=${encodeURIComponent(q)}&limit=5`); const data=await r.json(); if(!r.ok) throw new Error(data.detail||'Request failed'); if(!data.length){statusEl.textContent='No articles found.';return;} statusEl.textContent=`Showing ${data.length} simplified articles`; newsEl.innerHTML=data.map(a=>`<article class="card"><div class="meta">${esc(a.source||'Unknown source')} · ${esc((a.publishedAt||'').slice(0,10))}</div><h2>${esc(a.title)}</h2><div class="summary">${esc(a.summary)}</div>${a.url?`<p><a href="${esc(a.url)}" target="_blank" rel="noopener">Read original article</a></p>`:''}</article>`).join('');}catch(e){statusEl.textContent=`Error: ${e.message}`;}}
